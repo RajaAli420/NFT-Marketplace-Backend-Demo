@@ -55,4 +55,9 @@ export class AuthController {
     console.log(user.user_id, role_id);
     return this.authService.updateRole(user.user_id, role_id);
   }
+  @Post('resetPassword')
+  // @UseGuards(AuthGuard('jwt'))
+  resetPassword(@Body('email') email: string) {
+    return this.authService.resetPassword(email);
+  }
 }

@@ -1,15 +1,13 @@
-import {
-  HttpCode,
-  HttpException,
-  HttpStatus,
-  Injectable,
-} from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { UpdateAuthDto } from './dto/update-auth.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
+import * as nodemailer from 'nodemailer';
 import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
+import * as crypto from 'crypto';
+
 @Injectable()
 export class AuthService {
   constructor(private prismaService: PrismaService, private jwt: JwtService) {}
@@ -21,8 +19,8 @@ export class AuthService {
         data: {
           name: createUserDto.name,
           username: createUserDto.username,
-          password: createUserDto.password,
-          email: hash,
+          password: hash,
+          email: createUserDto.email,
           bio: createUserDto.bio,
           website: createUserDto.website,
           instagram: createUserDto.instagram,
@@ -142,6 +140,53 @@ export class AuthService {
       return new HttpException('Did Not Update', HttpStatus.NOT_MODIFIED, {
         cause: new Error(e),
       });
+    }
+  }
+  async resetPassword(email: string) {
+    try {
+      let user = await this.prismaService.user.findUnique({
+        where: {
+          email: email,
+        },
+      });
+      if (!user)
+        return new HttpException('User Not Found', HttpStatus.NOT_FOUND);
+      const generateOTP = () => {
+        const otp = crypto.randomInt(100000, 999999);
+        return otp.toString();
+      };
+
+      const otp = generateOTP();
+      console.log(otp);
+      const transporter = nodemailer.createTransport({
+        service: 'Gmail',
+        // host: 'smtp.gmail.com',
+        // port: 657,
+        // secure: true,
+        auth: {
+          user: 'doetesting43@gmail.com',
+          pass: 'syjfbkohrnefubox',
+        },
+      });
+
+      const mailOptions = {
+        from: 'doetesting43@gmail.com',
+        to: email,
+        subject: 'Reset your password',
+        text: `Use the following code for resetting your password: ${otp}`,
+      };
+      let mailResponse = await transporter.sendMail(mailOptions);
+      await this.prismaService.passwordReset.create({
+        data: {
+          messageId: mailResponse.messageId,
+          otp: otp,
+          email: email,
+          active: true,
+        },
+      });
+      return 'Check Your Gmail For Password Reset Code';
+    } catch (e) {
+      return e;
     }
   }
 }

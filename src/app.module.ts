@@ -17,6 +17,7 @@ import { NftModule } from './nft/nft.module';
     CollectionModule,
     NftModule,
   ],
+
   controllers: [AppController],
   providers: [AppService],
 })

@@ -77,3 +77,11 @@ model NFTMetadata {
   nft             NFT    @relation(fields: [nft_id], references: [nft_id])
   nft_id          String
 }
+
+model PasswordReset {
+  id        String  @id @default(uuid())
+  messageId String  @unique
+  otp       String
+  email     String
+  active    Boolean @default(false)
+}
