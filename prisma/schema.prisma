@@ -1,0 +1,79 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Role {
+  role_id String @id @unique @default(uuid())
+  type    String
+  User    User[]
+}
+
+model User {
+  user_id       String       @id @unique @default(uuid())
+  name          String
+  username      String       @unique
+  password      String
+  email         String       @unique
+  walletAddress String       @unique
+  bio           String
+  website       String?
+  instagram     String?
+  twitter       String?
+  discord       String?
+  avatar        String?
+  Role          Role         @relation(fields: [role_id], references: [role_id])
+  role_id       String
+  Followers     Followers[]
+  Collection    Collection[]
+}
+
+model Followers {
+  follow_id   String @unique @default(uuid())
+  user        User   @relation(fields: [user_id], references: [user_id])
+  user_id     String
+  follower_id String
+}
+
+model Collection {
+  collection_id String  @unique @default(uuid())
+  name          String  @unique
+  symbol        String
+  description   String
+  shortUrl      String?
+  bannerImage   String
+  user          User    @relation(fields: [user_id], references: [user_id])
+  user_id       String
+  NFT           NFT[]
+}
+
+model NFT {
+  nft_id           String        @unique @default(uuid())
+  name             String
+  description      String
+  alternative_Text String?
+  image            String
+  price            Float
+  type             String
+  startingDate     DateTime?
+  endingDate       DateTime?
+  redeemCode       String
+  collection       Collection    @relation(fields: [collection_id], references: [collection_id])
+  collection_id    String
+  NFTMetadata      NFTMetadata[]
+}
+
+model NFTMetadata {
+  nft_metadata_id String @unique @default(uuid())
+  trait_type      String
+  trait_value     String
+  nft             NFT    @relation(fields: [nft_id], references: [nft_id])
+  nft_id          String
+}
