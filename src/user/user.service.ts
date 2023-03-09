@@ -27,8 +27,8 @@ export class UserService {
           Collection: {
             select: {
               name: true,
-              bannerImage: true,
-              shortUrl: true,
+              banner_image: true,
+              short_url: true,
               description: true,
               NFT: {},
             },

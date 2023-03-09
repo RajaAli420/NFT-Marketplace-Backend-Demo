@@ -18,11 +18,7 @@ export class NftService {
           description: createNftDto.description,
           alternative_Text: createNftDto.alternative_Text,
           image: path,
-          price: parseFloat(createNftDto.price.toString()),
-          type: createNftDto.type,
-          startingDate: new Date(createNftDto.startingDate),
-          endingDate: new Date(createNftDto.endingDate),
-          redeemCode: createNftDto.redeemCode,
+          redeem_code: createNftDto.redeemCode,
           collection_id: createNftDto.collection_id,
         },
       });

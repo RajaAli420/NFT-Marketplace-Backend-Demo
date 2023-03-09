@@ -17,22 +17,22 @@ model Role {
 }
 
 model User {
-  user_id       String       @id @unique @default(uuid())
-  name          String
-  username      String       @unique
-  password      String
-  email         String       @unique
-  walletAddress String       @unique
-  bio           String
-  website       String?
-  instagram     String?
-  twitter       String?
-  discord       String?
-  avatar        String?
-  Role          Role         @relation(fields: [role_id], references: [role_id])
-  role_id       String
-  Followers     Followers[]
-  Collection    Collection[]
+  user_id        String       @id @unique @default(uuid())
+  name           String
+  username       String?      @unique
+  // password       String
+  email          String       @unique
+  wallet_address String       @unique
+  bio            String
+  website        String?
+  instagram      String?
+  twitter        String?
+  discord        String?
+  avatar         String?
+  Role           Role         @relation(fields: [role_id], references: [role_id])
+  role_id        String
+  Followers      Followers[]
+  Collection     Collection[]
 }
 
 model Followers {
@@ -43,31 +43,58 @@ model Followers {
 }
 
 model Collection {
-  collection_id String  @unique @default(uuid())
+  collection_id String  @id @unique @default(uuid())
   name          String  @unique
   symbol        String
   description   String
-  shortUrl      String?
-  bannerImage   String
+  short_url     String?
+  banner_image  String
   user          User    @relation(fields: [user_id], references: [user_id])
   user_id       String
   NFT           NFT[]
 }
 
 model NFT {
-  nft_id           String        @unique @default(uuid())
+  nft_id           String         @id @unique @default(uuid())
   name             String
   description      String
   alternative_Text String?
   image            String
-  price            Float
-  type             String
-  startingDate     DateTime?
-  endingDate       DateTime?
-  redeemCode       String
-  collection       Collection    @relation(fields: [collection_id], references: [collection_id])
+  redeem_code      String
+  collection       Collection     @relation(fields: [collection_id], references: [collection_id])
   collection_id    String
   NFTMetadata      NFTMetadata[]
+  Orders           SellOrder[]
+  AuctionOrder     AuctionOrder[]
+}
+
+model SellOrder {
+  order_id     String  @id @default(uuid())
+  price        Float
+  active       Boolean @default(false)
+  buyerAddress String
+  nft          NFT     @relation(fields: [nft_id], references: [nft_id])
+  nft_id       String
+}
+
+model AuctionOrder {
+  order_id      String    @id @default(uuid())
+  minimum_bid   Float
+  active        Boolean   @default(false)
+  starting_date DateTime?
+  ending_date   DateTime?
+
+  nft    NFT    @relation(fields: [nft_id], references: [nft_id])
+  nft_id String
+  Bids   Bids[]
+}
+
+model Bids {
+  bid_id                String       @id @unique @default(uuid())
+  bid_amount            Float
+  bidder_wallet_address String
+  auctionOrder          AuctionOrder @relation(fields: [auction_order_id], references: [order_id])
+  auction_order_id      String
 }
 
 model NFTMetadata {
@@ -79,9 +106,9 @@ model NFTMetadata {
 }
 
 model PasswordReset {
-  id        String  @id @default(uuid())
-  messageId String  @unique
-  otp       String
-  email     String
-  active    Boolean @default(false)
+  id         String  @id @default(uuid())
+  message_id String  @unique
+  otp        String
+  email      String
+  active     Boolean @default(false)
 }

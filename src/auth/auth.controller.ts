@@ -57,7 +57,11 @@ export class AuthController {
   }
   @Post('resetPassword')
   // @UseGuards(AuthGuard('jwt'))
-  resetPassword(@Body('email') email: string) {
-    return this.authService.resetPassword(email);
+  resetPasswordOTP(@Body('email') email: string) {
+    return this.authService.resetPasswordOTP(email);
+  }
+  @Post('matchOTP')
+  matchOTP(@Body('code') code: string, @Body('email') email: string) {
+    return this.authService.matchOTP(code, email);
   }
 }

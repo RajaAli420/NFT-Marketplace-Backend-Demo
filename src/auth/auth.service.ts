@@ -26,13 +26,13 @@ export class AuthService {
           instagram: createUserDto.instagram,
           twitter: createUserDto.twitter,
           discord: createUserDto.discord,
-          walletAddress: createUserDto.walletAddress,
+          wallet_address: createUserDto.walletAddress,
           avatar: (process.env.SERVER_PATH + file.path).replace(/\\/g, '/'),
           role_id: createUserDto.role_id,
         },
         select: {
           user_id: true,
-          username: true,
+          wallet_address: true,
           Role: {
             select: {
               type: true,
@@ -41,14 +41,14 @@ export class AuthService {
         },
       });
 
-      if (createUser)
-        return {
-          ACCESS_TOKEN: this.signToken({
-            user_id: createUser.user_id,
-            username: createUser.username,
-            role: createUser.Role.type,
-          }),
-        };
+      if (!createUser) throw new HttpException('', HttpStatus.NOT_MODIFIED);
+      return {
+        ACCESS_TOKEN: this.signToken({
+          user_id: createUser.user_id,
+          walletAddress: createUser.wallet_address,
+          role: createUser.Role.type,
+        }),
+      };
     } catch (e) {
       return e;
     }
@@ -58,11 +58,10 @@ export class AuthService {
     try {
       let userDetail = await this.prismaService.user.findUnique({
         where: {
-          username: createAuthDto.username,
+          wallet_address: createAuthDto.walletAddress,
         },
         select: {
           user_id: true,
-          password: true,
           Role: {
             select: {
               type: true,
@@ -71,16 +70,16 @@ export class AuthService {
         },
       });
       if (!userDetail)
-        throw new HttpException('User Does Not Found', HttpStatus.NOT_FOUND);
-      if (!bcrypt.compare(createAuthDto.password, userDetail.password))
-        throw new HttpException(
-          'Credentials Don`t Match',
-          HttpStatus.UNAUTHORIZED,
-        );
+        throw new HttpException('User Not Found', HttpStatus.NOT_FOUND);
+      // if (!bcrypt.compare(createAuthDto.password, userDetail.password))
+      //   throw new HttpException(
+      //     'Credentials Don`t Match',
+      //     HttpStatus.UNAUTHORIZED,
+      //   );
       return {
         ACCESS_TOKEN: this.signToken({
           user_id: userDetail.user_id,
-          username: createAuthDto.username,
+          walletAddress: createAuthDto.walletAddress,
           role: userDetail.Role.type,
         }),
       };
@@ -88,7 +87,7 @@ export class AuthService {
       return e;
     }
   }
-  signToken(payload: { user_id: string; username: string; role: string }) {
+  signToken(payload: { user_id: string; walletAddress: string; role: string }) {
     const secret = process.env.JWTSECRET;
     return this.jwt.sign(payload, {
       expiresIn: '1h',
@@ -118,7 +117,7 @@ export class AuthService {
           role_id: role_id,
         },
         select: {
-          username: true,
+          wallet_address: true,
           Role: {
             select: {
               type: true,
@@ -132,7 +131,7 @@ export class AuthService {
       return {
         ACCESS_TOKEN: this.signToken({
           user_id: user_id,
-          username: updateRole.username,
+          walletAddress: updateRole.wallet_address,
           role: updateRole.Role.type,
         }),
       };
@@ -142,7 +141,7 @@ export class AuthService {
       });
     }
   }
-  async resetPassword(email: string) {
+  async resetPasswordOTP(email: string) {
     try {
       let user = await this.prismaService.user.findUnique({
         where: {
@@ -178,13 +177,41 @@ export class AuthService {
       let mailResponse = await transporter.sendMail(mailOptions);
       await this.prismaService.passwordReset.create({
         data: {
-          messageId: mailResponse.messageId,
+          message_id: mailResponse.messageId,
           otp: otp,
           email: email,
           active: true,
         },
       });
       return 'Check Your Gmail For Password Reset Code';
+    } catch (e) {
+      return e;
+    }
+  }
+  async matchOTP(code: string, email: string) {
+    console.log(code);
+    try {
+      let match = await this.prismaService.passwordReset.findMany({
+        where: {
+          otp: code,
+          AND: {
+            active: true,
+            email: email,
+          },
+        },
+      });
+      console.log(match);
+      if (match.length == 0)
+        throw new HttpException('Code Doesnt Match', HttpStatus.NOT_ACCEPTABLE);
+      await this.prismaService.passwordReset.update({
+        where: {
+          id: match[0].id,
+        },
+        data: {
+          active: false,
+        },
+      });
+      return HttpStatus.ACCEPTED;
     } catch (e) {
       return e;
     }

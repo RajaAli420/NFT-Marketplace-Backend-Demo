@@ -21,8 +21,8 @@ export class CollectionService {
           name: createCollectionDto.collection_name,
           symbol: createCollectionDto.symbol,
           description: createCollectionDto.description,
-          shortUrl: createCollectionDto.shortUrl,
-          bannerImage: path,
+          short_url: createCollectionDto.shortUrl,
+          banner_image: path,
           user_id: createCollectionDto.user_id,
         },
       });

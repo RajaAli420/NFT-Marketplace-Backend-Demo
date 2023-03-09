@@ -7,6 +7,7 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { CollectionModule } from './collection/collection.module';
 import { NftModule } from './nft/nft.module';
+import { OrdersModule } from './orders/orders.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { NftModule } from './nft/nft.module';
     AuthModule,
     CollectionModule,
     NftModule,
+    OrdersModule,
   ],
 
   controllers: [AppController],
