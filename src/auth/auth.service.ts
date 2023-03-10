@@ -11,23 +11,15 @@ import * as crypto from 'crypto';
 @Injectable()
 export class AuthService {
   constructor(private prismaService: PrismaService, private jwt: JwtService) {}
-  async signup(createUserDto: CreateUserDto, file: Express.Multer.File) {
+  async signup(createUserDto: CreateUserDto) {
     try {
-      console.log(process.env.SERVER_PATH + file.path);
       let hash = await bcrypt.hash(createUserDto.password, 10);
       let createUser = await this.prismaService.user.create({
         data: {
           name: createUserDto.name,
           username: createUserDto.username,
-          password: hash,
           email: createUserDto.email,
-          bio: createUserDto.bio,
-          website: createUserDto.website,
-          instagram: createUserDto.instagram,
-          twitter: createUserDto.twitter,
-          discord: createUserDto.discord,
           wallet_address: createUserDto.walletAddress,
-          avatar: (process.env.SERVER_PATH + file.path).replace(/\\/g, '/'),
           role_id: createUserDto.role_id,
         },
         select: {

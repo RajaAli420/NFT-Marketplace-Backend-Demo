@@ -12,7 +12,6 @@ export class RolesGuard implements CanActivate {
     const req = context.switchToHttp().getRequest();
     if (req.user) {
       const { user_id } = req.user;
-      console.log(req.user);
       const user = await this.primsaService.user.findUnique({
         where: {
           user_id: user_id,
@@ -25,7 +24,7 @@ export class RolesGuard implements CanActivate {
           },
         },
       });
-      console.log(roles.includes(user.Role.type), user.Role.type);
+
       return roles.includes(user.Role.type);
     }
 

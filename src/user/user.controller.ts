@@ -10,11 +10,16 @@ import {
   Req,
   HttpException,
   HttpStatus,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
 
 @Controller('user')
 export class UserController {
@@ -33,10 +38,28 @@ export class UserController {
     }
     return this.userService.findOne(id);
   }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.update(+id, updateUserDto);
+  @UseGuards(AuthGuard('jwt'))
+  @UseInterceptors(
+    FileInterceptor('avatar', {
+      storage: diskStorage({
+        destination: './public/profileImages',
+        filename: (req, file, cb) => {
+          const randomName = Array(32)
+            .fill(null)
+            .map(() => Math.round(Math.random() * 16).toString(16))
+            .join('');
+          cb(null, `${randomName}${extname(file.originalname)}`);
+        },
+      }),
+    }),
+  )
+  @Patch('update/:walletaddress')
+  update(
+    @Param('walletaddress') walletaddress: string,
+    @UploadedFile() file: Express.Multer.File,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
+    return this.userService.update(walletaddress, updateUserDto, file);
   }
   @Post('follow')
   @UseGuards(AuthGuard('jwt'))

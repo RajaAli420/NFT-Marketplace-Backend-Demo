@@ -59,8 +59,33 @@ export class UserService {
     }
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async update(
+    wallet_address: string,
+    updateUserDto: UpdateUserDto,
+    file: Express.Multer.File,
+  ) {
+    let path = '';
+    if (file != undefined) {
+      path = (process.env.SERVER_PATH + file.path).replace(/\\/g, '/');
+    }
+    try {
+      let updateUser = await this.prismaService.user.update({
+        where: {
+          wallet_address: wallet_address,
+        },
+        data: {
+          avatar: path,
+          bio: updateUserDto.bio ? updateUserDto.bio : null,
+          website: updateUserDto.website ? updateUserDto.website : null,
+          instagram: updateUserDto.instagram ? updateUserDto.instagram : null,
+          twitter: updateUserDto.twitter ? updateUserDto.twitter : null,
+          discord: updateUserDto.discord ? updateUserDto.discord : null,
+        },
+      });
+      console.log(updateUser);
+    } catch (e) {
+      return { Message: e };
+    }
   }
 
   async follow(user_id: string, follower_id: string) {

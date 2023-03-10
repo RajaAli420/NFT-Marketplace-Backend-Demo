@@ -24,25 +24,8 @@ import { FileInterceptor } from '@nestjs/platform-express';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
   @Post('signup')
-  @UseInterceptors(
-    FileInterceptor('avatar', {
-      storage: diskStorage({
-        destination: './public/profileImages',
-        filename: (req, file, cb) => {
-          const randomName = Array(32)
-            .fill(null)
-            .map(() => Math.round(Math.random() * 16).toString(16))
-            .join('');
-          cb(null, `${randomName}${extname(file.originalname)}`);
-        },
-      }),
-    }),
-  )
-  signup(
-    @Body() createUserDto: CreateUserDto,
-    @UploadedFile() file: Express.Multer.File,
-  ) {
-    return this.authService.signup(createUserDto, file);
+  signup(@Body() createUserDto: CreateUserDto) {
+    return this.authService.signup(createUserDto);
   }
   @Post('login')
   login(@Body() createAuthDto: CreateAuthDto) {

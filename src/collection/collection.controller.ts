@@ -41,11 +41,22 @@ export class CollectionController {
     return this.collectionService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.collectionService.findOne(+id);
+  @Get('recent')
+  findAllRecent() {
+    console.log('here');
+    return this.collectionService.newCollectionFilter();
+  }
+  @Get('top/:range')
+  topCollections(@Param('range') range: string) {
+    return this.collectionService.topCollectionFilter(range);
   }
 
+  //for getting one collection
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.collectionService.findOne(id);
+  }
+  //not sure what a user could update
   @Patch(':id')
   update(
     @Param('id') id: string,

@@ -23,7 +23,7 @@ model User {
   // password       String
   email          String       @unique
   wallet_address String       @unique
-  bio            String
+  bio            String?
   website        String?
   instagram      String?
   twitter        String?
@@ -33,6 +33,8 @@ model User {
   role_id        String
   Followers      Followers[]
   Collection     Collection[]
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
 }
 
 model Followers {
@@ -43,15 +45,19 @@ model Followers {
 }
 
 model Collection {
-  collection_id String  @id @unique @default(uuid())
-  name          String  @unique
-  symbol        String
-  description   String
-  short_url     String?
-  banner_image  String
-  user          User    @relation(fields: [user_id], references: [user_id])
-  user_id       String
-  NFT           NFT[]
+  collection_id      String    @id @unique @default(uuid())
+  collection_address String?   @unique
+  name               String    @unique
+  symbol             String
+  description        String
+  short_url          String?
+  banner_image       String
+  user               User      @relation(fields: [user_id], references: [user_id])
+  user_id            String
+  NFT                NFT[]
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  History            History[]
 }
 
 model NFT {
@@ -66,15 +72,20 @@ model NFT {
   NFTMetadata      NFTMetadata[]
   Orders           SellOrder[]
   AuctionOrder     AuctionOrder[]
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  History          History[]
 }
 
 model SellOrder {
-  order_id     String  @id @default(uuid())
+  order_id     String   @id @default(uuid())
   price        Float
-  active       Boolean @default(false)
+  active       Boolean  @default(false)
   buyerAddress String
-  nft          NFT     @relation(fields: [nft_id], references: [nft_id])
+  nft          NFT      @relation(fields: [nft_id], references: [nft_id])
   nft_id       String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
 model AuctionOrder {
@@ -84,9 +95,11 @@ model AuctionOrder {
   starting_date DateTime?
   ending_date   DateTime?
 
-  nft    NFT    @relation(fields: [nft_id], references: [nft_id])
-  nft_id String
-  Bids   Bids[]
+  nft       NFT      @relation(fields: [nft_id], references: [nft_id])
+  nft_id    String
+  Bids      Bids[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Bids {
@@ -95,6 +108,8 @@ model Bids {
   bidder_wallet_address String
   auctionOrder          AuctionOrder @relation(fields: [auction_order_id], references: [order_id])
   auction_order_id      String
+  createdAt             DateTime     @default(now())
+  updatedAt             DateTime     @updatedAt
 }
 
 model NFTMetadata {
@@ -111,4 +126,17 @@ model PasswordReset {
   otp        String
   email      String
   active     Boolean @default(false)
+}
+
+model History {
+  history_id         String     @id @unique @default(uuid())
+  price              Float
+  ownerWalletAddress String
+  buyerWalletAddress String
+  nft                NFT        @relation(fields: [nft_id], references: [nft_id], onDelete: Cascade)
+  nft_id             String
+  collection         Collection @relation(fields: [collection_id], references: [collection_id], onDelete: Cascade)
+  collection_id      String
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
 }
