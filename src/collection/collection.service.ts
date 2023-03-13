@@ -33,7 +33,36 @@ export class CollectionService {
   }
 
   async findAll() {
-    return await this.prismaService.collection.findMany();
+    let allCollections = await this.prismaService.collection.findMany({
+      select: {
+        collection_id: true,
+        name: true,
+        NFT: {
+          take: 10,
+          select: {
+            nft_id: true,
+            image: true,
+            Orders: {
+              select: {
+                price: true,
+              },
+            },
+          },
+        },
+      },
+    });
+    for (let i = 0; i < allCollections.length; i++) {
+      let volumeTraded = await this.prismaService.history.aggregate({
+        where: {
+          collection_id: allCollections[i].collection_id,
+        },
+        _sum: {
+          price: true,
+        },
+      });
+      let totalVolume = volumeTraded._sum;
+      allCollections[i]['tradedvolume'] = volumeTraded._sum;
+    }
   }
 
   async findOne(id: string) {
@@ -55,6 +84,7 @@ export class CollectionService {
           },
           NFT: {
             select: {
+              nft_id: true,
               name: true,
               description: true,
               alternative_Text: true,

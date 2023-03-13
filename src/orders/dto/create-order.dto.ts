@@ -38,3 +38,15 @@ export class CreateAuctionOrderDto {
   @IsString()
   nft_id: string;
 }
+
+export class PlaceBidDto {
+  @IsNotEmpty()
+  @IsString()
+  bidderAddress: string;
+  @IsNotEmpty()
+  @IsNumber()
+  bidAmount: number;
+  @IsNotEmpty()
+  @IsString()
+  auctionOrderId: string;
+}

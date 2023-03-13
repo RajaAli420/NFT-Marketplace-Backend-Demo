@@ -43,7 +43,7 @@ export class NftService {
         let createAuction = await this.prismaService.auctionOrder.create({
           data: {
             minimum_bid: createNftDto.price,
-            active: false,
+            active: true,
             starting_date: createNftDto.startingDate,
             ending_date: createNftDto.endingDate,
             nft_id: createNFT.nft_id,
