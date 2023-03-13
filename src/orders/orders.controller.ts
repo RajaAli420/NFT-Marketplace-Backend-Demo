@@ -15,15 +15,6 @@ import { UpdateOrderDto } from './dto/update-order.dto';
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
-  @Post('fixed')
-  createSellOrder(@Body() createOrderDto: CreateOrderDto) {
-    return this.ordersService.createSellOrder(createOrderDto);
-  }
-  @Post('auction')
-  createAuctionOrder(@Body() createAuctionOrderDto: CreateAuctionOrderDto) {
-    return this.ordersService.createAuctionOrder(createAuctionOrderDto);
-  }
-
   @Get()
   findAll() {
     return this.ordersService.findAll();
@@ -34,9 +25,9 @@ export class OrdersController {
     return this.ordersService.findOne(+id);
   }
 
-  @Patch(':id')
+  @Patch('fixed/:id')
   update(@Param('id') id: string, @Body() updateOrderDto: UpdateOrderDto) {
-    return this.ordersService.update(+id, updateOrderDto);
+    return this.ordersService.update(id, updateOrderDto);
   }
 
   @Delete(':id')

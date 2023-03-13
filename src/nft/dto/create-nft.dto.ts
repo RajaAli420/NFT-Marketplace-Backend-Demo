@@ -1,5 +1,11 @@
 import { Transform } from 'class-transformer';
-import { IsDate, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import {
+  IsBoolean,
+  IsDate,
+  IsNotEmpty,
+  IsNumber,
+  IsString,
+} from 'class-validator';
 
 export class CreateNftDto {
   @IsString()
@@ -12,13 +18,14 @@ export class CreateNftDto {
   @IsNotEmpty()
   alternative_Text: string;
   image: any;
-  @IsNotEmpty()
-  @Transform(({ value }) => parseFloat(value))
-  @IsNumber()
-  price: number;
   @IsString()
   @IsNotEmpty()
   type: string;
+  @IsNumber()
+  @IsNotEmpty()
+  price: number; //also used as minimum bid
+  @IsString()
+  buyerAddress: string;
   @IsDate()
   startingDate: Date;
   @IsDate()
