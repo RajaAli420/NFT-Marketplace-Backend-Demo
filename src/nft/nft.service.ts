@@ -6,11 +6,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 @Injectable()
 export class NftService {
   constructor(private prismaService: PrismaService) {}
-  async create(
-    createNftDto: CreateNftDto,
-    file: Express.Multer.File,
-    type: string,
-  ) {
+  async create(createNftDto: CreateNftDto, file: Express.Multer.File) {
     try {
       let path = file['NftImage'][0]['path'];
       path = process.env.SERVER_PATH + path;
@@ -33,7 +29,7 @@ export class NftService {
       if (createNftDto.type == 'Fixed') {
         let createOrder = await this.prismaService.sellOrder.create({
           data: {
-            price: createNftDto.price,
+            price: parseFloat(createNftDto.price.toString()),
             active: true,
             buyerAddress: '',
             nft_id: createNFT.nft_id,

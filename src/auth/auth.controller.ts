@@ -25,6 +25,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
   @Post('signup')
   signup(@Body() createUserDto: CreateUserDto) {
+    console.log(createUserDto);
     return this.authService.signup(createUserDto);
   }
   @Post('login')

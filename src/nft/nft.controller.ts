@@ -27,9 +27,8 @@ export class NftController {
   create(
     @UploadedFiles() file: Express.Multer.File,
     @Body() createNftDto: any,
-    @Body('type') type: string,
   ) {
-    return this.nftService.create(createNftDto, file, type);
+    return this.nftService.create(createNftDto, file);
   }
 
   @Get()

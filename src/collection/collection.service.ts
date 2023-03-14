@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateCollectionDto } from './dto/create-collection.dto';
 import { UpdateCollectionDto } from './dto/update-collection.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -45,13 +45,26 @@ export class CollectionService {
             Orders: {
               select: {
                 price: true,
+                active: true,
               },
             },
           },
         },
       },
     });
+
+    if (allCollections.length == 0)
+      throw new HttpException('No Collections Found', HttpStatus.NOT_FOUND);
+    let floorPrice = 0;
+    //need to fix floor price calculations
     for (let i = 0; i < allCollections.length; i++) {
+      for (let j = 0; i < allCollections[i].NFT.length; j++) {
+        for (let k = 0; k < allCollections[i].NFT[j].Orders.length; k++) {
+          if (allCollections[i].NFT[j].Orders[k].active == true) {
+            floorPrice += allCollections[i].NFT[j].Orders[k].price;
+          }
+        }
+      }
       let volumeTraded = await this.prismaService.history.aggregate({
         where: {
           collection_id: allCollections[i].collection_id,
@@ -62,7 +75,11 @@ export class CollectionService {
       });
       let totalVolume = volumeTraded._sum;
       allCollections[i]['tradedvolume'] = volumeTraded._sum;
+      allCollections[i]['floorPrice'] = floorPrice;
+      floorPrice = 0;
     }
+
+    return allCollections;
   }
 
   async findOne(id: string) {

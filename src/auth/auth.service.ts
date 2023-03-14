@@ -12,8 +12,8 @@ import * as crypto from 'crypto';
 export class AuthService {
   constructor(private prismaService: PrismaService, private jwt: JwtService) {}
   async signup(createUserDto: CreateUserDto) {
+    console.log(createUserDto);
     try {
-      let hash = await bcrypt.hash(createUserDto.password, 10);
       let createUser = await this.prismaService.user.create({
         data: {
           name: createUserDto.name,
